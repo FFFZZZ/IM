@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .demo {
+            display: flex;
+            flex-direction: column
+        }
+
+        .room {
+            flex: 1;
+            margin: 20px
+        }
+
+        .client {
+            display: flex
+        }
+
+        .chat {
+            height: 100px;
+            border: solid 1px salmon;
+            overflow-y: auto
+        }
+
+        .nsp {
+            height: 100px;
+            border: solid 1px seagreen;
+            overflow-y: auto
+        }
+
+        .do {
+            margin: 20px
+        }
+
+        .msg {
+            width: 70%;
+            margin: 20px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="demo">
+        <div class="nsp">
+            <label>大厅</label>
+            <ul></ul>
+        </div>
+        <div class="client">
+            <div class="room">
+                <div class="chat">
+                    <label for="">房间1</label>
+                    <ul class="room1"></ul>
+                </div>
+                <div class="do">
+                    <input type="text" name="" id="name1" value="樊国顺" />
+                    <select name="room1" id="room1">
+                        <option value="room1">房间1</option>
+                        <option value="room2">房间2</option>
+                        <option value="room3">房间3</option>
+                    </select>
+                    <button onclick="inroom(socket1,document.getElementById('room1').value)">进入</button>
+                    <button onclick="leaveroom(socket1,document.getElementById('room1').value)">离开</button>
+                    <button onclick="socket1.open()">开始连接</button>
+                    <button onclick="socket1.close()">断开连接</button>
+                </div>
+                <div class="send">
+                    <input class="msg" id="msg1" />
+                    <button onclick="sendtoroom(socket1,'msg1','room1')">发送</button>
+                </div>
+            </div>
+            <div class="room">
+                <div class="chat">
+                    <label for="">房间2</label>
+                    <ul class="room2"></ul>
+                </div>
+                <div class="do">
+                    <input type="text" name="" id="name2" value="郑月红" />
+                    <select name="room2" id="room2">
+                        <option value="room1">房间1</option>
+                        <option value="room2">房间2</option>
+                        <option value="room3">房间3</option>
+                    </select>
+                    <button onclick="inroom(socket2,document.getElementById('room2').value)">进入</button>
+                    <button onclick="leaveroom(socket2,document.getElementById('room2').value)">离开</button>
+                    <button onclick="socket2.open()">开始连接</button>
+                    <button onclick="socket2.close()">断开连接</button>
+                </div>
+                <div class="send">
+                    <input class="msg" id="msg2" />
+                    <button onclick="sendtoroom(socket2,'msg2','room2')">发送</button>
+                </div>
+            </div>
+            <div class="room">
+                <div class="chat">
+                    <label for="">房间3</label>
+                    <ul class="room3"></ul>
+                </div>
+                <div class="do">
+                    <input type="text" name="" id="name3" value="史小杰" />
+                    <select name="room3" id="room3">
+                        <option value="room1">房间1</option>
+                        <option value="room2">房间2</option>
+                        <option value="room3">房间3</option>
+                    </select>
+                    <button onclick="inroom(socket3,document.getElementById('room3').value)">进入</button>
+                    <button onclick="leaveroom(socket3,document.getElementById('room3').value)">离开</button>
+                    <button onclick="socket3.open()">开始连接</button>
+                    <button onclick="socket3.close()">断开连接</button>
+                </div>
+                <div class="send">
+                    <input class="msg" id="msg3" />
+                    <button onclick="sendtoroom(socket3,'msg3','room3')">发送</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+<script>
+    var socket1 = io('http://localhost:3000/chat', {
+        query: {
+            id:'ffffff',
+            name: '樊国顺',
+            type: 1
+        },
+        autoConnect: false
+    });
+    var socket2 = io('http://localhost:3000/chat', {
+        query: {
+            id:'zzzzzz',
+            name: '郑月红',
+            type: 2
+        },
+        autoConnect: false
+    });
+
+    var socket3 = io('http://localhost:3000/chat', {
+        query: {
+            id:'ssssss',
+            name: '史小杰',
+            type: 1
+        },
+        autoConnect: false
+    });
+
+    //监听消息
+    socket1.on('sendtoroom', (e) => {
+        add(e.room, e.name, e.msg)
+    })
+
+    socket1.on('success', (e) => {
+        console.log('socket1', e)
+    })
+
+    socket1.on('message', (e) => {
+        console.log('socket1', e)
+    })
+
+    socket2.on('sendtoroom', (e) => {
+        add(e.room, e.name, e.msg)
+    })
+
+    socket2.on('success', (e) => {
+        console.log('socket2', e)
+    })
+
+    socket2.on('message', (e) => {
+        console.log('socket2', e)
+    })
+
+    socket3.on('sendtoroom', (e) => {
+        add(e.room, e.name, e.msg)
+    })
+
+    socket3.on('success', (e) => {
+        console.log('socket3', e)
+    })
+
+    socket3.on('message', (e) => {
+        console.log('socket3', e)
+    })
+
+
+
+    //断开连接
+    function close(socket) {
+        socket.close()
+    }
+
+    //进入房间
+    function inroom(socket, room) {
+        socket.emit('joinroom', { room: room })
+    }
+
+    //离开房间
+    function leaveroom(socket, room) {
+        socket.emit('leaveroom', { room: room })
+    }
+
+    //发送消息至房间
+    function sendtoroom(socket, msgid, roomid) {
+        socket.emit('sendtoroom', { room: document.getElementById(roomid).value, msg: document.getElementById(msgid).value })
+    }
+
+    function add(id, name, msg) {
+        var ele = document.getElementsByClassName(id)[0]
+        ele.innerHTML += `<li>${name}:${msg}</li>`
+    }
+
+</script>
+
+</html>
